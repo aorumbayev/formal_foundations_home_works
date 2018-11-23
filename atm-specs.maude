@@ -70,17 +70,14 @@ mod BANK_ACCOUNT is
   op Account : -> Cid [ctor] .
   
   op balance :_ : Int -> Attribute [ctor gather (&)] .
-  op hasConfirmedPin :_ : Int -> Attribute [ctor gather (&)] .
   op from_to_transfer_ : Oid Oid Nat -> Msg [ctor] .
-  op checkPin : Nat -> Nat .
-  var Dictionary : Dict{String, Int} .
   op key :_ : String -> Attribute [ctor gather (&)] .
   op value :_ : Int -> Attribute [ctor gather (&)] .
   
   ops deposit withdraw : Oid Nat -> Msg [ctor] .
                   
   vars A B : Oid .
-  vars BalanceNew Balance Balance' Pin CardPin : Nat .
+  vars BalanceNew Balance Balance' : Nat .
 
   rl [deposit] :
     < A : Account | balance : Balance >
