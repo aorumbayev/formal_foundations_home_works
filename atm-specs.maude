@@ -1,0 +1,225 @@
+--- HW1 - Maude ATM 
+--- Done by : Altynbek Orumbayev 
+
+set print attribute on .
+
+mod BANK_DATABASE{K :: TRIV, V :: TRIV}  is
+  protecting INT .
+  protecting CONFIGURATION .
+  protecting STRING .
+  protecting MAP{K, V} * (sort Map{K, V} to Dict{K, V}, op _[_] to lookup, op insert to update) .
+
+  inc LOOP-MODE .
+
+  op Account : -> Cid [ctor] .
+  op Database : -> Cid [ctor] .
+  
+  op mapAccount : Oid K$Elt V$Elt -> Msg [ctor] .
+  op pinIsValid : Oid K$Elt V$Elt -> Msg [ctor] .
+
+  op dictionary :_ : Dict{K, V} -> Attribute [ctor gather(&)] .
+  op hasValidatedPin :_ : Bool -> Attribute [ctor gather(&)] .
+
+  var A : Oid .
+  var L : List{String} .
+  var V : String .
+  vars M N N' : Nat .
+  var Dictionary : Dict{K, V} .
+  var I : V$Elt .
+  var Kv : K$Elt .
+
+  rl [mapAccount] : < A : Database | dictionary : Dictionary > 
+    mapAccount(A, Kv, I)
+    => < A : Database | dictionary : update(Kv, I, Dictionary) >  [print "\nAccount " Kv " added!\n"]  .
+
+  rl [pinIsValid] : < A : Database | dictionary : Dictionary > 
+    pinIsValid(A, Kv, I)
+    => < A : Database | hasValidatedPin : lookup(Dictionary, Kv) == I >  [print "\nValidate pin request was processed \n"]  .
+
+endm
+
+mod BANK_DATABASE_TEST is
+
+  ex BANK_DATABASE{String, Int} .
+
+  op BankDatabase : -> Oid .
+  ops databaseAddAccountConf, validatePinConf : -> Configuration .
+
+  eq databaseAddAccountConf 
+    = < BankDatabase : Database | dictionary : empty >
+      mapAccount(BankDatabase, "ID-1", 123)
+      mapAccount(BankDatabase, "ID-4", 890)
+      mapAccount(BankDatabase, "ID-1", 516)
+    .
+
+  eq validatePinConf 
+    = < BankDatabase : Database | dictionary : empty >
+      mapAccount(BankDatabase, "ID-4", 890)
+      pinIsValid(BankDatabase, "ID-4", 890)
+    .
+endm  
+
+--- Execute tests for BANK_DATABASE
+rew in BANK_DATABASE_TEST : databaseAddAccountConf .
+rew in BANK_DATABASE_TEST : validatePinConf .
+
+mod BANK_ACCOUNT is
+  protecting INT .
+  protecting CONFIGURATION .
+  
+  op Account : -> Cid [ctor] .
+  
+  op balance :_ : Int -> Attribute [ctor gather (&)] .
+  op hasConfirmedPin :_ : Int -> Attribute [ctor gather (&)] .
+  op from_to_transfer_ : Oid Oid Nat -> Msg [ctor] .
+  op checkPin : Nat -> Nat .
+  var Dictionary : Dict{String, Int} .
+  op key :_ : String -> Attribute [ctor gather (&)] .
+  op value :_ : Int -> Attribute [ctor gather (&)] .
+  
+  ops deposit withdraw : Oid Nat -> Msg [ctor] .
+                  
+  vars A B : Oid .
+  vars BalanceNew Balance Balance' Pin CardPin : Nat .
+
+  rl [deposit] :
+    < A : Account | balance : Balance >
+    deposit(A, BalanceNew)
+    => < A : Account | balance : Balance + BalanceNew >
+    [print "\nSuccessfully deposited : " BalanceNew " to account : " A "\n"] .
+
+  crl [withdraw] :
+    < A : Account | balance : Balance >
+    withdraw(A, BalanceNew)
+    => < A : Account | balance : Balance - BalanceNew >
+    if Balance >= BalanceNew 
+    [print "\nSuccessfully withdrawn : " BalanceNew " from account : " A "\n"] .
+    
+  crl [transfer] :
+    (from A to B transfer BalanceNew)
+    < A : Account | balance : Balance >
+    < B : Account | balance : Balance' >
+    => < A : Account | balance : Balance - BalanceNew >
+        < B : Account | balance : Balance' + BalanceNew >
+    if Balance >= BalanceNew .
+
+endm
+
+mod BANK_ACCOUNT_TEST is
+  ex BANK_ACCOUNT .
+
+  op Visa : -> Oid .
+  ops USER-1, USER-2 : -> Oid .
+  op bankAccountConf : -> Configuration .
+
+  eq bankAccountConf = 
+      < USER-1 : Account | balance : 0 >
+      < USER-2 : Account | balance : 90 >
+      deposit(USER-1, 200)
+      deposit(USER-1, 600)
+      withdraw(USER-1, 50)
+      (from USER-1 to USER-2 transfer 300) 
+      .
+endm
+
+--- Execute tests for BANK_ACCOUNT
+rew in BANK_ACCOUNT_TEST : bankAccountConf .
+
+mod ATM is
+    
+    protecting CONFIGURATION .
+    protecting BANK_ACCOUNT .
+    
+    op $100 :_ : Nat -> Attribute [ctor gather(&)] .
+    op $200 :_ : Nat -> Attribute [ctor gather(&)] .
+    op $500 :_ : Nat -> Attribute [ctor gather(&)] .
+    op $1000 :_ : Nat -> Attribute [ctor gather(&)] .
+    op $2000 :_ : Nat -> Attribute [ctor gather(&)] .
+
+    op Atm : -> Cid [ctor] .
+    op validateCard : Oid Oid -> Bool . --- atm id card_id
+    op processDepositRequest : Oid Oid Nat Nat Nat Nat Nat -> Msg [ctor] . 
+    op processWithdrawRequest : Oid Oid Nat Nat Nat Nat Nat -> Msg [ctor] .
+    op checkBalance : Oid Oid -> Msg [ctor] .
+
+    vars B A C : Oid .
+    vars N N' 100# 200# 500# 1000# 2000# 100#' 200#' 500#' 1000#' 2000#' : Nat .
+    vars BalanceNew Balance Balance' Pin : Nat .
+    
+    rl [processDepositRequest] :
+        < B : Atm | $100 : 100#, 
+            $200 : 200#, 
+            $500 : 500#, 
+            $1000 : 1000#, 
+            $2000 : 2000# > 
+        < A : Account | balance : Balance > 
+        processDepositRequest(B, A, 100#', 200#', 500#', 1000#', 2000#')
+        =>  < B : Atm | $100 : 100# + 100#' ,
+            $200 : 200# + 200#', 
+            $500 : 500# + 500#', 
+            $1000 : 1000# + 1000#', 
+            $2000 : 2000# + 2000#' >
+            < A : Account | balance : Balance > 
+            deposit(A, ((100 * 100#') + 
+                (200 * 200#') + 
+                (500 * 500#') + 
+                (1000 * 1000#') + 
+                (2000 * 2000#'))) .
+
+    crl [processWithdrawRequest] :
+        < B : Atm | $100 : 100#,
+            $200 : 200#,
+            $500 : 500#, 
+            $1000 : 1000#, 
+            $2000 : 2000# > 
+        < A : Account | balance : Balance >
+        processWithdrawRequest(B, A, 100#', 200#', 500#', 1000#', 2000#')
+        =>  < B : Atm | $100 : (100# - 100#'), 
+            $200 : (200# - 200#'), 
+            $500 : (500# - 500#'), 
+            $1000 : (1000# - 1000#'), 
+            $2000 : (2000# - 2000#') >
+            < A : Account | balance : Balance >
+            withdraw(A, ((100 * 100#') +
+                (200 * 200#') +
+                (500 * 500#') + 
+                (1000 * 1000#') + 
+                (2000 * 2000#'))) 
+
+        if Balance >= ((100 * 100#') + 
+                 (200 * 200#') + 
+                 (500 * 500#') + 
+                 (1000 * 1000#') + 
+                 (2000 * 2000#')) 
+                 /\ (100# >= 100#') /\ (200# >= 200#')
+                 /\ (500# >= 500#') /\ (1000# >= 1000#')
+                 /\ (2000# >= 2000#') .
+endm
+
+mod ATM-TEST is
+    extending ATM .
+    ops A-001 B-001 : -> Oid .
+    op atmDepositConf : -> Configuration .
+    eq atmDepositConf =
+        < B-001 : Atm | $100 : 50,
+            $200 : 50,
+            $500 : 50, 
+            $1000 : 50, 
+            $2000 : 25 > 
+        < A-001 : Account | balance : 0 >
+        processDepositRequest(B-001, A-001, 1, 1, 0, 0, 0) .
+    
+    op atmWithdrawConf : -> Configuration .
+    eq atmWithdrawConf =
+        < B-001 : Atm | $100 : 50,
+            $200 : 50,
+            $500 : 50, 
+            $1000 : 50, 
+            $2000 : 25 > 
+        < A-001 : Account | balance : 800 >
+        processWithdrawRequest(B-001, A-001, 2, 2, 0, 0, 0) .
+endm
+
+--- Execute tests for ATM
+rew in ATM-TEST : atmDepositConf .
+rew in ATM-TEST : atmWithdrawConf .
