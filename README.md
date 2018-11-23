@@ -20,14 +20,14 @@ Solution in `atm-specs.maude` consist of several modules and functional modules 
 
 #### Bank Database, Account and Pin verification and storage.
 
-• `BANK_DATABASE{K :: TRIV, V :: TRIV}` - An implementation of a database used by a Bank that has a `protecting` `MAP` field. Defines specification using rules on how to store the `AccountId` and `Pin` idenfitied by `String` and `Int` inside the map.
+• `BANK_DATABASE{K :: TRIV, V :: TRIV}` - An implementation of a database used by a Bank that has a `protecting` `MAP` field. Defines specification using rules on how to store the `AccountId` and `Pin` idenfitied by `String` and `Int` inside the map. <br/>
 • `BANK_DATABASE_TEST` - A module used for executing test cases for the bank database. Default configuration supports adding an account and checking wheter the account inside the database and the pin entered by user is corresponding to the pin stored in database for that particular `AccountId`.
 
 ---
 
 #### Bank account, trivial withdraw, deposit and transfer operations.
 
-• `BANK_ACCOUNT` - A module used for specification of BankAccount that supports main operations on `deposit`, `withdraw` and `transfer` using mixfix notation. The `withdraw` is defined by a conditional rule that also checks that the rule is being rewritten only if the User has enought balance on his account.
+• `BANK_ACCOUNT` - A module used for specification of BankAccount that supports main operations on `deposit`, `withdraw` and `transfer` using mixfix notation. The `withdraw` is defined by a conditional rule that also checks that the rule is being rewritten only if the User has enought balance on his account. <br/>
 • `BANK_ACCOUNT_TEST` - A module used for executing test cases for the bank database. Default configuration demonstrate the series of `deposit`, `withdraw` and `transfer` operations perfomed on two different bank accounts.
 
 ---
