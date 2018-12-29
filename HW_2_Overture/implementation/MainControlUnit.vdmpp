@@ -1,0 +1,314 @@
+class MainControlUnit
+
+
+instance variables
+
+private finished	: bool := false;
+private print		: bool := true;
+
+private TargetTemp	: nat;
+private Temp		: nat := 0;
+private TargetHumid	: nat;
+private Humid		: nat := 0;
+private Motion		: nat := 0;
+private IsEvening		: bool := false;
+
+private NodeList	: map nat to GlobalTypes`nodeType := { |-> };
+private Algo		: algType := <NONE>;
+
+
+types   
+
+public algType	= <THTMLW> | <THTLW> | <THTW> | <TTW> | <TT> | <TW> | <HW> | <NONE>;
+
+
+operations
+
+public MainControlUnit: nat * nat ==> MainControlUnit
+	MainControlUnit(t, h) ==
+		(TargetTemp := t;
+		TargetHumid := h;
+		);
+
+public UpdateValues: () ==> ()
+	UpdateValues() ==
+		(for all r in set rng NodeList do
+			(if (r = <HUMIDSENSOR>)
+			then Humid := HA`HumidNode.ReadValue();
+			if (r = <TEMPSENSOR>)
+			then Temp := HA`TempNode.ReadValue();
+			if (r = <MOTIONSENSOR>)
+			then Motion := HA`MotionNode.ReadValue();
+			);
+		 IsEvening := ( Room`timerRef.GetTime() / 1000 ) > 17;
+		);
+
+public GetAlgo: () ==> algType
+	GetAlgo() ==
+		return Algo;
+
+public GetTemp: () ==> nat
+	GetTemp() ==
+		return Temp;
+
+public GetHumid: () ==> nat
+	GetHumid() ==
+		return Humid;
+
+public Algorithm: () ==> ()
+	Algorithm() ==
+		(cases Algo:
+			<THTMLW>		-> THTMLWAlgo(),
+			<THTLW>		-> THTLWAlgo(),
+			<THTW>		-> THTWAlgo(),
+			<TTW>		-> TTWAlgo(),
+			<TT>		-> TTAlgo(),
+			<TW>		-> TWAlgo(),
+			<HW>		-> HWAlgo(),
+			<NONE>		-> return
+		end
+		);
+
+private THTMLWAlgo: () ==> ()
+	THTMLWAlgo() ==
+		(if (Humid > TargetHumid)
+		then (
+			HA`WinNode.SetCorrection(<OPEN>);
+			HA`ThermNode.SetCorrection(<NONE>);
+			print := true;
+		)
+		elseif (Temp > TargetTemp+1)
+		then (
+			HA`WinNode.SetCorrection(<CLOSE>);
+			HA`ThermNode.SetCorrection(<DEC>);
+			print := true;
+		)
+		elseif (Temp < TargetTemp-1)
+		then (
+			HA`WinNode.SetCorrection(<CLOSE>);
+			HA`ThermNode.SetCorrection(<INC>);
+			print := true;
+		)
+		else (HA`WinNode.SetCorrection(<CLOSE>);
+			HA`ThermNode.SetCorrection(<NONE>);
+			if print
+			then (TargetReachedPrint(Room`timerRef.GetTime());
+				);
+			print := false;
+			);
+			
+		if (Motion > 0)
+		then (
+			HA`MotionNode.NotifyHost();
+		);
+		
+		if (IsEvening = true and HA`LightNode.GetState() = <OFF>)
+		then (
+			HA`LightNode.SetState(<ON>);
+		)
+		elseif (IsEvening = false and HA`LightNode.GetState() = <ON>)
+		then (
+			HA`LightNode.SetState(<OFF>);
+		);
+		);
+		
+
+private THTLWAlgo: () ==> ()
+	THTLWAlgo() ==
+		(if (Humid > TargetHumid)
+		then (
+			HA`WinNode.SetCorrection(<OPEN>);
+			HA`ThermNode.SetCorrection(<NONE>);
+			print := true;
+		)
+		elseif (Temp > TargetTemp+1)
+		then (
+			HA`WinNode.SetCorrection(<CLOSE>);
+			HA`ThermNode.SetCorrection(<DEC>);
+			print := true;
+		)
+		elseif (Temp < TargetTemp-1)
+		then (
+			HA`WinNode.SetCorrection(<CLOSE>);
+			HA`ThermNode.SetCorrection(<INC>);
+			print := true;
+		)
+		else (HA`WinNode.SetCorrection(<CLOSE>);
+			HA`ThermNode.SetCorrection(<NONE>);
+			if print
+			then (TargetReachedPrint(Room`timerRef.GetTime());
+				);
+			print := false;
+			);
+			
+		if (IsEvening = true and HA`LightNode.GetState() = <OFF>)
+		then (
+			HA`LightNode.SetState(<ON>);
+		)
+		elseif (IsEvening = false and HA`LightNode.GetState() = <ON>)
+		then (
+			HA`LightNode.SetState(<OFF>);
+		);
+		);
+
+private THTWAlgo: () ==> ()
+	THTWAlgo() ==
+		(if (Humid > TargetHumid)
+		then (
+			HA`WinNode.SetCorrection(<OPEN>);
+			HA`ThermNode.SetCorrection(<NONE>);
+			print := true;
+		)
+		elseif (Temp > TargetTemp+1)
+		then (
+			HA`WinNode.SetCorrection(<CLOSE>);
+			HA`ThermNode.SetCorrection(<DEC>);
+			print := true;
+		)
+		elseif (Temp < TargetTemp-1)
+		then (
+			HA`WinNode.SetCorrection(<CLOSE>);
+			HA`ThermNode.SetCorrection(<INC>);
+			print := true;
+		)
+		else (
+			HA`WinNode.SetCorrection(<CLOSE>);
+			HA`ThermNode.SetCorrection(<NONE>);
+			if print
+		then (
+			TargetReachedPrint(Room`timerRef.GetTime()); 
+			);
+			print := false;
+		);
+		);
+
+private TTWAlgo: () ==> ()
+	TTWAlgo() ==
+		(if (Temp > TargetTemp + 2)
+		then (HA`WinNode.SetCorrection(<OPEN>);
+			HA`ThermNode.SetCorrection(<DEC>);
+			print := true;
+		)
+		elseif (Temp > TargetTemp + 1)
+		then (HA`WinNode.SetCorrection(<CLOSE>);
+			HA`ThermNode.SetCorrection(<DEC>);
+		print := true;
+		)
+		elseif (Temp < TargetTemp - 1)
+		then (HA`WinNode.SetCorrection(<CLOSE>);
+			HA`ThermNode.SetCorrection(<INC>);
+			print := true;
+		)
+		else (HA`WinNode.SetCorrection(<CLOSE>);
+			HA`ThermNode.SetCorrection(<NONE>);
+			if print
+			then (TargetReachedPrint(Room`timerRef.GetTime());
+				);
+			print := false;
+			);
+		);
+
+private TTAlgo: () ==> ()
+	TTAlgo() ==
+		(if (Temp > TargetTemp + 1)
+		then (HA`ThermNode.SetCorrection(<DEC>);
+			print := true;
+		)
+		elseif (Temp < TargetTemp - 1)
+		then (HA`ThermNode.SetCorrection(<INC>);
+		print := true;
+		)
+		else (HA`ThermNode.SetCorrection(<NONE>);
+			if print
+			then (TargetReachedPrint(Room`timerRef.GetTime());
+				);
+			print := false;
+			);
+		);
+
+private TWAlgo: () ==> ()
+	TWAlgo() ==
+		(if (Temp > TargetTemp + 1)
+		then (HA`WinNode.SetCorrection(<OPEN>);
+			print := true;
+		)
+		else (HA`WinNode.SetCorrection(<CLOSE>);
+			if print
+			then (TargetReachedPrint(Room`timerRef.GetTime());
+				);
+			print := false;
+			);
+		);
+
+private HWAlgo: () ==> ()
+	HWAlgo() ==
+		(if (Humid > TargetHumid)
+		then (HA`WinNode.SetCorrection(<OPEN>);
+			print := true;
+		)
+		else (HA`WinNode.SetCorrection(<CLOSE>);
+			if print
+			then (TargetReachedPrint(Room`timerRef.GetTime());
+				);
+			print := false;
+			);
+		);
+
+private TargetReachedPrint: nat ==> ()
+TargetReachedPrint(t) ==
+ (IO`print("\nTarget values reached");
+  IO`print("\nAt time: ");
+  IO`print(t);  
+ );
+
+private UpdateAlgorithm: () ==> ()
+	UpdateAlgorithm() ==
+		(if (rng NodeList = {})
+		then Algo := <NONE>
+		elseif (rng NodeList = {<TEMPSENSOR>, <HUMIDSENSOR>, <THERMOSTAT>, <MOTIONSENSOR>, <LIGHTBULB>, <WINDOW>})
+		then Algo := <THTMLW>
+		elseif (rng NodeList = {<TEMPSENSOR>, <HUMIDSENSOR>, <THERMOSTAT>, <LIGHTBULB>, <WINDOW>})
+		then Algo := <THTLW>
+		elseif (rng NodeList = {<TEMPSENSOR>, <HUMIDSENSOR>, <THERMOSTAT>, <WINDOW>})
+		then Algo := <THTW>
+		elseif (rng NodeList = {<TEMPSENSOR>, <THERMOSTAT>, <WINDOW>})
+		then Algo := <TTW>
+		elseif (rng NodeList = {<TEMPSENSOR>, <THERMOSTAT>})
+		then Algo := <TT>
+		elseif (rng NodeList = {<TEMPSENSOR>, <WINDOW>})
+		then Algo := <TW>
+		elseif (rng NodeList = {<HUMIDSENSOR>, <WINDOW>})
+		then Algo := <HW>
+		else Algo := <NONE>;
+		);
+
+public AddNode: nat * GlobalTypes`nodeType ==> ()
+	AddNode(id, type) ==
+		(NodeList := NodeList ++ {id |-> type};
+		UpdateAlgorithm();
+		)
+pre id not in set dom NodeList
+post card(dom NodeList) = card(dom NodeList~) + 1;
+
+public RemoveNode: nat * GlobalTypes`nodeType ==> ()
+	RemoveNode(id, type) ==
+		(if (NodeList(id) = type)
+		then NodeList := {id} <-: NodeList;
+		UpdateAlgorithm();
+		)
+pre id in set dom NodeList
+post card(dom NodeList) = card(dom NodeList~) - 1;
+
+public Step: () ==> ()
+Step() ==
+ (HA`TempNode.Step();
+  HA`HumidNode.Step();
+  UpdateValues();
+  Algorithm();
+  HA`WinNode.Step();
+  HA`MotionNode.Step();
+  HA`ThermNode.Step();
+  HA`MotionSimulatorNode.Step();
+ );
+
+end MainControlUnit

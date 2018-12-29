@@ -1,0 +1,30 @@
+class Window is subclass of GeneralActuator
+
+
+operations
+
+public Window: nat * GlobalTypes`nodeType ==> Window
+	Window (id, type) ==
+		(ID := id;
+		Type := type;
+		Corr := <CLOSE>;
+		);
+
+public Step: () ==> ()
+	Step() ==
+		(if (Corr = <OPEN>)
+		then (Room`env.DecHumid();
+		      Room`env.DecTemp();
+			);
+		);
+
+public SetCorrection: GlobalTypes`correction ==> ()
+	SetCorrection(cor) ==
+		Corr := cor
+pre (cor = <OPEN>) or (cor = <CLOSE>);
+
+public GetCorrection: () ==> GlobalTypes`correction
+	GetCorrection() ==
+		return Corr;
+
+end Window

@@ -1,0 +1,36 @@
+class TestSensors is subclass of TestToolkit
+
+instance variables
+
+tempSensor 	: TemperatureSensor;
+humidSensor	: HumidSensor;
+motionSensor	: MotionSensor;
+
+operations
+
+protected SetUp: () ==> ()
+	SetUp() ==
+	(
+	tempSensor := new TemperatureSensor(1, <TEMPSENSOR>, 0);
+	humidSensor := new HumidSensor(2, <HUMIDSENSOR>, 0);
+	motionSensor := new MotionSensor(3, <MOTIONSENSOR>, 0);
+	);
+
+public Test: () ==> ()
+	Test() ==
+		(
+		SetUp();
+		
+		AssertTrue(tempSensor.GetID() = 1);
+		AssertTrue(tempSensor.GetType() = <TEMPSENSOR>);
+		AssertTrue(tempSensor.ReadValue() = 0);
+
+		AssertTrue(humidSensor.GetID() = 2);
+		AssertTrue(humidSensor.GetType() = <HUMIDSENSOR>);
+		AssertTrue(humidSensor.ReadValue() = 0);		
+		
+		AssertTrue(motionSensor.GetID() = 3);
+		AssertTrue(motionSensor.GetType() = <MOTIONSENSOR>);	
+		);
+
+end TestSensors

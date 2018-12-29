@@ -1,0 +1,36 @@
+class TestActuators is subclass of TestToolkit
+
+
+instance variables
+
+win 		: Window;
+therm		: Thermostat;
+lightBulb		: SmartLightbulb;
+
+
+operations
+
+protected SetUp: () ==> ()
+	SetUp() ==
+	(
+	win := new Window(1, <WINDOW>);
+	therm := new Thermostat(2, <THERMOSTAT>);
+	lightBulb := new SmartLightbulb(3, <LIGHTBULB>);
+	);
+
+public Test: () ==> ()
+	Test() ==
+		(
+		SetUp();
+		
+		AssertTrue(win.GetID() = 1);
+		AssertTrue(win.GetType() = <WINDOW>);
+
+		AssertTrue(therm.GetID() = 2);
+		AssertTrue(therm.GetType() = <THERMOSTAT>);
+		
+		AssertTrue(lightBulb.GetID() = 3);
+		AssertTrue(lightBulb.GetType() = <LIGHTBULB>);
+		);
+
+end TestActuators

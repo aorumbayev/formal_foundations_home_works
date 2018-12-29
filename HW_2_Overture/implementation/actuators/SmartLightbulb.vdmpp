@@ -1,0 +1,29 @@
+class SmartLightbulb is subclass of StateActuator
+
+
+operations
+
+public SmartLightbulb: nat * GlobalTypes`nodeType ==> SmartLightbulb
+	SmartLightbulb (id, type) ==
+		(ID := id;
+		Type := type;
+		State := <OFF>;
+		);
+
+public SetState: GlobalTypes`states ==> ()
+	SetState(state) == (
+		State := state;
+		if (state = <ON>) then (
+			IO`print("\nLights in your room are enabled\n");
+		)
+		else (
+			IO`print("\nLights in your room are disabled\n");
+		);
+		)
+pre (state = <ON>) or (state = <OFF>);
+
+public GetState: () ==> GlobalTypes`states
+	GetState() ==
+		return State;
+
+end SmartLightbulb

@@ -1,0 +1,22 @@
+class StateActuator
+
+
+instance variables
+
+protected ID	: nat;
+protected Type	: GlobalTypes`nodeType;
+protected State	: GlobalTypes`states;
+protected Env	: Environment;
+
+
+operations
+
+public GetID: () ==> nat
+	GetID() ==
+		return ID;
+
+public GetType: () ==> GlobalTypes`nodeType
+	GetType() ==
+		return Type;
+
+end StateActuator

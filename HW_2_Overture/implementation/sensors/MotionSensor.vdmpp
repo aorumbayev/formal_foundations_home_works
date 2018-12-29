@@ -1,0 +1,41 @@
+class MotionSensor is subclass of Sensor
+
+
+instance variables
+
+NotifiedHost : bool;
+
+
+operations
+
+private SetNotifiedHost: bool ==> ()
+	SetNotifiedHost(val) == 
+		NotifiedHost := val;
+
+private GetNotifiedHost: () ==> bool
+	GetNotifiedHost() ==
+		return NotifiedHost;
+
+public MotionSensor: nat * GlobalTypes`nodeType * nat ==> MotionSensor
+	MotionSensor (id, type, val) ==
+		(ID := id;
+		Type := type;
+		Value := val;
+		NotifiedHost := false;
+		);
+		
+public NotifyHost: () ==> ()
+	NotifyHost() ==
+		( if (GetNotifiedHost() = false) 
+			then (
+				SetNotifiedHost(true);
+				IO`print("\nDetected motion in the room!\n");
+			);
+		);
+		
+public Step: () ==> ()
+	Step() ==
+		(Value := Room`env.ReadMotion();
+		);
+
+end MotionSensor

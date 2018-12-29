@@ -1,0 +1,18 @@
+class TemperatureSensor is subclass of Sensor
+
+
+operations
+
+public TemperatureSensor: nat * GlobalTypes`nodeType * nat ==> TemperatureSensor
+	TemperatureSensor (id, type, val) ==
+		(ID := id;
+		Type := type;
+		Value := val;
+		);
+
+public Step: () ==> ()
+	Step() ==
+		(Value := Room`env.ReadTemp();
+		);
+
+end TemperatureSensor

@@ -1,0 +1,15 @@
+class MotionSimulator
+
+
+operations
+		
+public Step: () ==> ()
+	Step() ==
+		(
+		if (( Room`timerRef.GetTime() / 1000 ) > 12 and Room`env.ReadMotion() < 100) 
+		then (
+			Room`env.SetMotion(200);
+		)
+		);
+
+end MotionSimulator

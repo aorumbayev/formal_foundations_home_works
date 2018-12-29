@@ -1,0 +1,17 @@
+class TestToolkit
+
+
+instance variables
+
+operations
+
+protected AssertTrue: bool ==> ()
+	AssertTrue(pb) == if not pb then exit <FAILURE>;
+
+protected AssertFalse: bool ==> ()
+	AssertFalse(pb) == if pb then exit <FAILURE>;
+
+protected SetUp: () ==> ()
+	SetUp() == is subclass responsibility;
+
+end TestToolkit

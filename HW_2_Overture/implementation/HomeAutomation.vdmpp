@@ -1,0 +1,39 @@
+class HA
+
+
+instance variables
+
+public static Host	: MainControlUnit := new MainControlUnit(22, 95);
+public static TempNode	: TemperatureSensor := new TemperatureSensor(1, <TEMPSENSOR>, 0);
+public static HumidNode	: HumidSensor := new HumidSensor(2, <HUMIDSENSOR>, 0);
+public static ThermNode	: Thermostat := new Thermostat(3, <THERMOSTAT>);
+public static MotionNode : MotionSensor := new MotionSensor(4, <MOTIONSENSOR>, 0);
+public static LightNode : SmartLightbulb := new SmartLightbulb(5, <LIGHTBULB>);
+public static WinNode	: Window := new Window(6, <WINDOW>);
+
+public static MotionSimulatorNode : MotionSimulator := new MotionSimulator();
+
+
+types   
+
+
+operations
+
+public HA: () ==> HA
+	HA() ==
+		(Host.AddNode(TempNode.GetID(), TempNode.GetType());
+		Host.AddNode(HumidNode.GetID(), HumidNode.GetType());
+		Host.AddNode(ThermNode.GetID(), ThermNode.GetType());
+		Host.AddNode(WinNode.GetID(), WinNode.GetType());
+		Host.AddNode(LightNode.GetID(), LightNode.GetType());
+		Host.AddNode(MotionNode.GetID(), MotionNode.GetType());
+		);
+
+
+
+functions
+
+
+values
+
+end HA

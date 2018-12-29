@@ -1,0 +1,18 @@
+class HumidSensor is subclass of Sensor
+
+
+operations
+
+public HumidSensor: nat * GlobalTypes`nodeType * nat ==> HumidSensor
+	HumidSensor (id, type, val) ==
+		(ID := id;
+		Type := type;
+		Value := val;
+		);
+
+public Step: () ==> ()
+	Step() ==
+		(Value := Room`env.ReadHumid();
+		);
+
+end HumidSensor

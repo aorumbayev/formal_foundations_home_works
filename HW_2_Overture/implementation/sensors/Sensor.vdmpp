@@ -1,0 +1,30 @@
+class Sensor
+
+
+instance variables
+
+protected ID	: nat;
+protected Type	: GlobalTypes`nodeType;
+protected Value	: nat;
+protected Env	: Environment;
+
+
+operations
+
+public GetID: () ==> nat
+	GetID() ==
+		return ID;
+
+public GetType: () ==> GlobalTypes`nodeType
+	GetType() ==
+		return Type;
+
+public ReadValue: () ==> nat
+	ReadValue() ==
+		return Value;
+
+public Step: () ==> ()
+	Step() ==
+		is subclass responsibility
+
+end Sensor

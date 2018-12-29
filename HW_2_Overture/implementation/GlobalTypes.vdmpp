@@ -1,0 +1,22 @@
+class GlobalTypes
+
+
+instance variables
+
+
+types   
+
+public nodeType 	= <TEMPSENSOR> | <HUMIDSENSOR> | <LIGHTBULB> | <MOTIONSENSOR> | <WINDOW> | <THERMOSTAT> | <HOSTCONTROL> | <NONE>;
+public correction = <INC> | <DEC> | <OPEN> | <CLOSE> | <NONE>;
+public states =  <ON> | <OFF> ;
+
+
+operations
+
+
+functions
+
+
+values
+
+end GlobalTypes
