@@ -17,7 +17,7 @@ This dialect of VDM is based on `VDM-SL`, and has been extended with class and o
 
 The diagram below represents some of the classes that could be found inside the implementation class. 
 
-<p align="center"><img width=100% src="assets/class_diagram.png"></p>
+<p align="center"><img width=50% src="assets/class_diagram.png"></p>
 
 #### Room class
 
