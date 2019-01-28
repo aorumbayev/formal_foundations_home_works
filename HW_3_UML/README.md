@@ -11,7 +11,7 @@ Contains UML diagrams and OCL description for a domain of movies.
 
 #### Solution
 
-<p align="center"><img width=90% src="assets/movie_uml.png"></p>
+<p align="center"><img width=90% src="assets/movie_uml_diag.png"></p>
 
 The diagram above represents a simplified domain of typical movie industry.
 There are five main classes that inherit from the `Person` class. Those classes are described as follows :
